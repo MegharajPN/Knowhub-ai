@@ -1,12 +1,11 @@
+
 import os
-
 from rest_framework import serializers
-
 from .models import Document
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    file_url = serializers.SerializerMethodField()
+    file = serializers.FileField(write_only=True)
 
     class Meta:
         model = Document
@@ -14,7 +13,6 @@ class DocumentSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "file",
-            "file_url",
             "file_size",
             "status",
             "created_at",
@@ -22,7 +20,6 @@ class DocumentSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "title",
-            "file_url",
             "file_size",
             "status",
             "created_at",
@@ -36,14 +33,11 @@ class DocumentSerializer(serializers.ModelSerializer):
                 "Only PDF documents are allowed."
             )
 
-        max_size = 20 * 1024 * 1024
-
-        if uploaded_file.size > max_size:
+        if uploaded_file.size > 20 * 1024 * 1024:
             raise serializers.ValidationError(
                 "PDF size cannot exceed 20 MB."
             )
 
-        # Basic PDF signature check
         signature = uploaded_file.read(5)
         uploaded_file.seek(0)
 
@@ -65,15 +59,6 @@ class DocumentSerializer(serializers.ModelSerializer):
 
         return super().create(validated_data)
 
-    def get_file_url(self, obj):
-        request = self.context.get("request")
-
-        if not obj.file:
-            return None
-
-        url = obj.file.url
-
-        return request.build_absolute_uri(url) if request else url
 
 # for reference, here is the previous version of the DocumentSerializer without the file_url field and its corresponding method:
 # class DocumentSerializer(serializers.ModelSerializer):

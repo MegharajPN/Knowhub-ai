@@ -45,3 +45,43 @@ class Document(models.Model):
 
     def __str__(self):
         return self.title
+    
+class DocumentChunk(models.Model):
+    document = models.ForeignKey(
+        Document,
+        on_delete=models.CASCADE,
+        related_name="chunks",
+    )
+
+    chunk_number = models.PositiveIntegerField()
+    page_number = models.PositiveIntegerField()
+
+    content = models.TextField()
+
+    embedding = models.JSONField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["chunk_number"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["document", "chunk_number"],
+                name="unique_document_chunk",
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=["document", "page_number"],
+                name="document_page_idx",
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.document.title} - "
+            f"Chunk {self.chunk_number}"
+        )

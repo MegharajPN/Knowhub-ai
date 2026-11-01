@@ -9,15 +9,28 @@ const api = axios.create({
 });
 
 // Attach JWT access token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("access_token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
-  return config;
-});
+    // Let the browser set multipart/form-data and its boundary.
+    if (config.data instanceof FormData) {
+      if (typeof config.headers.delete === "function") {
+        config.headers.delete("Content-Type");
+      } else {
+        delete config.headers["Content-Type"];
+        delete config.headers["content-type"];
+      }
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Handle expired access tokens
 api.interceptors.response.use(
