@@ -1,13 +1,14 @@
 
 from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Document
-from .serializers import DocumentSerializer
+from .serializers import DocumentSerializer, DocumentSearchSerializer
 from .services.document_processor import process_document
-
+from .services.vector_search import search_documents
 
 class DocumentListCreateView(generics.ListCreateAPIView):
     serializer_class = DocumentSerializer
@@ -64,3 +65,33 @@ class DocumentDetailView(generics.RetrieveDestroyAPIView):
             instance.file.delete(save=False)
 
         instance.delete()
+
+class DocumentSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = DocumentSearchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        query = serializer.validated_data["query"]
+        top_k = serializer.validated_data["top_k"]
+
+        try:
+            results = search_documents(
+                user=request.user,
+                query=query,
+                top_k=top_k,
+            )
+
+            return Response({
+                "success": True,
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }, status=status.HTTP_200_OK)
+
+        except Exception:
+            return Response({
+                "success": False,
+                "message": "Document search failed. Please try again.",
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

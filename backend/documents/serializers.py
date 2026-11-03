@@ -3,7 +3,20 @@ import os
 from rest_framework import serializers
 from .models import Document
 
+class DocumentSearchSerializer(serializers.Serializer):
+    query = serializers.CharField(
+        required=True,
+        allow_blank=False,
+        max_length=1000,
+    )
 
+    top_k = serializers.IntegerField(
+        required=False,
+        default=5,
+        min_value=1,
+        max_value=10,
+    )
+    
 class DocumentSerializer(serializers.ModelSerializer):
     file = serializers.FileField(write_only=True)
 
