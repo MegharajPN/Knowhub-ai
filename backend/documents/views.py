@@ -6,9 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Document
-from .serializers import DocumentSerializer, DocumentSearchSerializer
+from .serializers import DocumentSerializer, DocumentSearchSerializer, DocumentAskSerializer
 from .services.document_processor import process_document
 from .services.vector_search import search_documents
+from documents.services.rag_service import ask_documents
 
 class DocumentListCreateView(generics.ListCreateAPIView):
     serializer_class = DocumentSerializer
@@ -50,7 +51,36 @@ class DocumentListCreateView(generics.ListCreateAPIView):
                 status=status.HTTP_201_CREATED,
             )
 
+class DocumentAskView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        serializer = DocumentAskSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        question = serializer.validated_data["question"]
+        top_k = serializer.validated_data["top_k"]
+
+        try:
+            result = ask_documents(
+                user=request.user,
+                question=question,
+                top_k=top_k,
+            )
+
+            return Response({
+                "success": True,
+                "question": question,
+                "answer": result["answer"],
+                "sources": result["sources"],
+            }, status=status.HTTP_200_OK)
+
+        except Exception:
+            return Response({
+                "success": False,
+                "message": "Unable to generate an answer. Please try again.",
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class DocumentDetailView(generics.RetrieveDestroyAPIView):
     serializer_class = DocumentSerializer
     permission_classes = [IsAuthenticated]

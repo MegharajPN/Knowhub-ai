@@ -1,7 +1,7 @@
 
 from django.urls import path
 
-from .views import DocumentListCreateView, DocumentDetailView, DocumentSearchView
+from .views import DocumentListCreateView, DocumentDetailView, DocumentSearchView, DocumentAskView
 
 urlpatterns = [
     path(
@@ -18,6 +18,11 @@ urlpatterns = [
         "search/",
         DocumentSearchView.as_view(),
         name="document-search"
+    ),
+    path(
+        "ask/",
+        DocumentAskView.as_view(),
+        name="document-ask"
     ),
 
 ]
