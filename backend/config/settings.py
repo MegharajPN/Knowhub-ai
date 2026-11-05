@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "documents",
     "accounts",
+    "conversations",
 
 ]
 
