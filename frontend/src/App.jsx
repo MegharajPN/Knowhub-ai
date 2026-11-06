@@ -8,17 +8,26 @@ import Documents from "./pages/Documents";
 import Search from "./pages/Search";
 import Chat from "./pages/Chat";
 
+import DashboardLayout from "./components/DashboardLayout";
+
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* Public routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-      <Route path="/documents" element={<Documents />} />
-      <Route path="/search" element={<Search />} />
-      <Route path="/chat" element={<Chat />} />
+
+      {/* Authenticated application layout */}
+      <Route element={<DashboardLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/documents" element={<Documents />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/chat" element={<Chat />} />
+      </Route>
+
+      {/* Default routes */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

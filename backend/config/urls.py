@@ -22,5 +22,6 @@ urlpatterns = [
 
     path("api/auth/", include("accounts.urls")),
     path("api/documents/", include("documents.urls")),
+    path("api/conversations/", include("conversations.urls")),
 ]
 
