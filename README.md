@@ -13,12 +13,7 @@
 ---
 
 ## Project Demo
-
-<!-- Add your Gemini-generated demo video to docs/demo.mp4, or replace the link below with your YouTube URL. -->
-<video width="320" height="240" controls>
-  <source src="KnowHUb-Demo-AI-Video.mp4" type="video/mp4">
-</video>
-
+https://github.com/user-attachments/assets/e315a808-d706-4f55-b4b2-5f97959ea6cb
 
 ## Overview
 
