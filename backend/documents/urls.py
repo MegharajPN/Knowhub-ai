@@ -2,6 +2,7 @@
 from django.urls import path
 
 from .views import DocumentListCreateView, DocumentDetailView, DocumentSearchView, DocumentAskView
+from .web_views import WebSourceListCreateView, WebSourceDetailView
 
 urlpatterns = [
     path(
@@ -23,6 +24,16 @@ urlpatterns = [
         "ask/",
         DocumentAskView.as_view(),
         name="document-ask"
+    ),
+    path(
+        "web-sources/",
+        WebSourceListCreateView.as_view(),
+        name="web-source-list-create",
+    ),
+    path(
+        "web-sources/<int:pk>/",
+        WebSourceDetailView.as_view(),
+        name="web-source-detail",
     ),
 
 ]

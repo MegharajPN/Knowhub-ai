@@ -1,4 +1,4 @@
-from documents.services.vector_search import search_documents
+from documents.services.vector_search import search_knowledge
 from documents.services.llm_service import generate_answer
 
 def ask_documents(user, question, top_k=5):
@@ -7,8 +7,8 @@ def ask_documents(user, question, top_k=5):
     if not question:
         raise ValueError("Question cannot be empty.")
 
-    # Retrieve relevant chunks belonging only to this user.
-    results = search_documents(
+    # Retrieve relevant PDF and website chunks.
+    results = search_knowledge(
         user=user,
         query=question,
         top_k=top_k,
@@ -16,19 +16,33 @@ def ask_documents(user, question, top_k=5):
 
     if not results:
         return {
-            "answer": "I couldn't find relevant information in your uploaded documents.",
+            "answer": (
+                "I couldn't find relevant information in your "
+                "uploaded documents or connected websites."
+            ),
             "sources": [],
         }
 
-    # Build context with source references.
     context_parts = []
 
     for index, result in enumerate(results, start=1):
+
+        if result["source_type"] == "pdf":
+            source_description = (
+                f"PDF: {result['document_title']}\n"
+                f"Page: {result['page_number']}"
+            )
+        else:
+            source_description = (
+                f"Website: {result['document_title']}\n"
+                f"URL: {result['page_url']}"
+            )
+
         context_parts.append(
             f"""
 SOURCE {index}
-Document: {result['document_title']}
-Page: {result['page_number']}
+{source_description}
+
 Content:
 {result['content']}
 """
@@ -44,10 +58,13 @@ Content:
 
     sources = [
         {
+            "source_type": result["source_type"],
+            "chunk_id": result["chunk_id"],
             "document_id": result["document_id"],
             "document_title": result["document_title"],
             "page_number": result["page_number"],
-            "chunk_id": result["chunk_id"],
+            "page_url": result["page_url"],
+            "web_source_id": result.get("web_source_id"),
             "similarity": result["similarity"],
         }
         for result in results

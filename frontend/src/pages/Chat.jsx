@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -11,6 +10,7 @@ import {
   CircularProgress,
   Divider,
   IconButton,
+  Link,
   Paper,
   Stack,
   TextField,
@@ -26,6 +26,7 @@ import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import PersonIcon from "@mui/icons-material/Person";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -657,7 +658,7 @@ export default function Chat() {
                         </Typography>
                       </Paper>
 
-                      {/* Retrieved document sources */}
+                      {/* Retrieved PDF and website sources */}
                       {!isUser && message.sources?.length > 0 && (
                         <Box sx={{ mt: 1.5 }}>
                           <Stack
@@ -675,7 +676,7 @@ export default function Chat() {
                               fontWeight={700}
                               color="text.secondary"
                             >
-                              REFERENCED DOCUMENTS
+                              SOURCES
                             </Typography>
 
                             <Chip
@@ -686,51 +687,110 @@ export default function Chat() {
                           </Stack>
 
                           <Stack spacing={1}>
-                            {message.sources.map((source, index) => (
-                              <Paper
-                                key={source.chunk_id || index}
-                                variant="outlined"
-                                sx={{
-                                  px: 1.5,
-                                  py: 1.2,
-                                  borderRadius: 2,
-                                  bgcolor: "#FFFFFF",
-                                }}
-                              >
-                                <Stack
-                                  direction="row"
-                                  alignItems="center"
-                                  spacing={1}
+                            {message.sources.map((source, index) => {
+                              const isWebsite =
+                                source.source_type === "website" ||
+                                Boolean(source.page_url);
+
+                              return (
+                                <Paper
+                                  key={`${source.source_type || "source"}-${source.chunk_id || index}`}
+                                  variant="outlined"
+                                  sx={{
+                                    px: 1.5,
+                                    py: 1.2,
+                                    borderRadius: 2,
+                                    bgcolor: "#FFFFFF",
+                                  }}
                                 >
-                                  <DescriptionOutlinedIcon
-                                    fontSize="small"
-                                    color="primary"
-                                  />
+                                  <Stack
+                                    direction="row"
+                                    alignItems="flex-start"
+                                    spacing={1}
+                                  >
+                                    {isWebsite ? (
+                                      <LanguageOutlinedIcon
+                                        fontSize="small"
+                                        color="primary"
+                                        sx={{ mt: 0.2 }}
+                                      />
+                                    ) : (
+                                      <DescriptionOutlinedIcon
+                                        fontSize="small"
+                                        color="primary"
+                                        sx={{ mt: 0.2 }}
+                                      />
+                                    )}
 
-                                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                                    <Typography
-                                      variant="body2"
-                                      fontWeight={600}
-                                      noWrap
-                                    >
-                                      {source.document_title || "Document"}
-                                    </Typography>
+                                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                                      <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={1}
+                                        flexWrap="wrap"
+                                      >
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight={600}
+                                          sx={{ overflowWrap: "anywhere" }}
+                                        >
+                                          {source.document_title ||
+                                            (isWebsite ? "Website source" : "Document")}
+                                        </Typography>
 
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                    >
-                                      Page {source.page_number}
-                                      {source.similarity != null
-                                        ? ` · Similarity ${Number(
-                                            source.similarity
-                                          ).toFixed(3)}`
-                                        : ""}
-                                    </Typography>
-                                  </Box>
-                                </Stack>
-                              </Paper>
-                            ))}
+                                        <Chip
+                                          size="small"
+                                          variant="outlined"
+                                          label={isWebsite ? "Website" : "PDF"}
+                                          sx={{
+                                            height: 20,
+                                            fontSize: 10,
+                                          }}
+                                        />
+                                      </Stack>
+
+                                      {isWebsite && source.page_url ? (
+                                        <Link
+                                          href={source.page_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          underline="hover"
+                                          variant="caption"
+                                          sx={{
+                                            display: "block",
+                                            mt: 0.5,
+                                            overflowWrap: "anywhere",
+                                          }}
+                                        >
+                                          {source.page_url}
+                                        </Link>
+                                      ) : (
+                                        <Typography
+                                          variant="caption"
+                                          color="text.secondary"
+                                          sx={{ display: "block", mt: 0.5 }}
+                                        >
+                                          {source.page_number != null
+                                            ? `Page ${source.page_number}`
+                                            : "PDF document"}
+                                        </Typography>
+                                      )}
+
+                                      {source.similarity != null && (
+                                        <Typography
+                                          variant="caption"
+                                          color="text.secondary"
+                                          sx={{ display: "block", mt: 0.3 }}
+                                        >
+                                          Similarity:{" "}
+                                          {Number(source.similarity).toFixed(3)}
+                                        </Typography>
+                                      )}
+                                    </Box>
+                                  </Stack>
+                                </Paper>
+                              );
+                            })}
                           </Stack>
                         </Box>
                       )}

@@ -85,3 +85,109 @@ class DocumentChunk(models.Model):
             f"{self.document.title} - "
             f"Chunk {self.chunk_number}"
         )
+
+class WebSource(models.Model):
+
+    class Status(models.TextChoices):
+        QUEUED = "queued", "Queued"
+        PROCESSING = "processing", "Processing"
+        COMPLETED = "completed", "Completed"
+        FAILED = "failed", "Failed"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="web_sources"
+    )
+
+    root_url = models.URLField(max_length=2048)
+
+    title = models.CharField(max_length=500, blank=True)
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.QUEUED
+    )
+
+    max_pages = models.PositiveSmallIntegerField(default=5)
+
+    pages_count = models.PositiveSmallIntegerField(default=0)
+
+    error_message = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    last_crawled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.root_url
+
+
+class WebPage(models.Model):
+
+    source = models.ForeignKey(
+        WebSource,
+        on_delete=models.CASCADE,
+        related_name="pages"
+    )
+
+    url = models.URLField(max_length=2048)
+
+    title = models.CharField(max_length=500, blank=True)
+
+    content = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source", "url"],
+                name="unique_webpage_per_source"
+            )
+        ]
+
+    def __str__(self):
+        return self.title or self.url
+
+
+class WebPageChunk(models.Model):
+
+    page = models.ForeignKey(
+        WebPage,
+        on_delete=models.CASCADE,
+        related_name="chunks"
+    )
+
+    chunk_number = models.PositiveIntegerField()
+
+    content = models.TextField()
+
+    embedding = models.JSONField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["chunk_number"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["page", "chunk_number"],
+                name="unique_webpage_chunk"
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=["page", "chunk_number"],
+                name="webpage_chunk_idx"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.page.url} - Chunk {self.chunk_number}"

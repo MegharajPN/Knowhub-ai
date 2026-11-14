@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -24,6 +23,7 @@ import {
   AutoAwesome,
   Dashboard as DashboardIcon,
   Description,
+  Language,
   Search,
   Forum,
   Menu as MenuIcon,
@@ -45,6 +45,11 @@ const navigationItems = [
     label: "Documents",
     path: "/documents",
     icon: <Description />,
+  },
+  {
+    label: "Web Sources",
+    path: "/web-sources",
+    icon: <Language />,
   },
   {
     label: "Search",

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from .models import Document
 from .serializers import DocumentSerializer, DocumentSearchSerializer, DocumentAskSerializer
 from .services.document_processor import process_document
-from .services.vector_search import search_documents
+from .services.vector_search import search_knowledge
 from documents.services.rag_service import ask_documents
 
 class DocumentListCreateView(generics.ListCreateAPIView):
@@ -107,7 +107,7 @@ class DocumentSearchView(APIView):
         top_k = serializer.validated_data["top_k"]
 
         try:
-            results = search_documents(
+            results = search_knowledge(
                 user=request.user,
                 query=query,
                 top_k=top_k,

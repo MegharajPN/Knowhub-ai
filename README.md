@@ -1,97 +1,100 @@
-# KnowHub AI — Enterprise Knowledge Assistant
+<p align="center">
+  <strong>Upload • Crawl • Search • Ask • Learn</strong>
+</p>
 
-An AI-powered enterprise knowledge management and question-answering platform that allows users to upload PDF documents, search their content using semantic search, and ask questions in natural language.
+<p align="center">
+  A full-stack AI knowledge assistant that lets users search and ask questions across PDF documents and public websites using Retrieval-Augmented Generation (RAG).
+</p>
 
-KnowHub AI uses **Retrieval-Augmented Generation (RAG)** to retrieve relevant information from uploaded documents and generate context-aware answers using a locally running Large Language Model (LLM).
-
-The application is built using React.js, Django REST Framework, MySQL, FAISS, Sentence Transformers, and Ollama.
+<p align="center">
+  <img src="KnowHub AI Architecture Overview.png" alt="KnowHub AI system architecture" width="100%">
+</p>
 
 ---
 
-## Project Overview
+## Project Demo
 
-Organizations often store important information across multiple PDF documents, making it difficult to find specific information quickly.
+<!-- Add your Gemini-generated demo video to docs/demo.mp4, or replace the link below with your YouTube URL. -->
 
-KnowHub AI addresses this problem by providing a centralized knowledge assistant where users can:
+<p align="center">
+  <a href="KnowHUb Demo AI Video.mp4">Watch the KnowHub AI demo video</a>
+</p>
 
-- Upload and manage PDF documents.
-- Extract and process document content automatically.
-- Convert document content into searchable text chunks.
-- Generate vector embeddings for semantic search.
-- Search documents using natural language.
-- Ask questions and receive AI-generated answers based on document content.
-- Maintain multiple conversations with persistent chat history.
-- View document sources and page references used to generate answers.
+## Overview
 
-The application uses locally hosted AI models, reducing dependency on paid external AI APIs.
+KnowHub AI is an AI-powered knowledge workspace for bringing information from PDF documents and public websites into one searchable place.
+
+Users can upload PDF files, add a website URL for crawling, search across their indexed knowledge, and ask questions in natural language. The application retrieves relevant content using semantic vector search and passes that context to a locally running Large Language Model (LLM) to generate an answer with source references.
+
+The application is built with **React, Django REST Framework, MySQL, Sentence Transformers, FAISS and Ollama**. The current AI workflow runs locally and does not depend on a paid external LLM API.
 
 ## Key Features
 
-### 1. User Authentication
-
+### Authentication and User Access
 - User registration and login.
-- JWT-based authentication.
-- Access token and refresh token handling.
+- JWT authentication using access and refresh tokens.
 - Protected API endpoints.
-- User-specific document and conversation access.
+- User-scoped documents, website sources and conversations.
 
-### 2. Document Management
-
+### PDF Document Management
 - Upload PDF documents.
-- PDF file validation.
-- File size validation (maximum 20 MB).
-- PDF content extraction.
-- Document processing status tracking.
-- View uploaded documents.
-- Delete uploaded documents.
-- Document statistics and filtering.
+- Validate PDF file type and file signature.
+- Enforce a maximum upload size of 20 MB.
+- Extract PDF text using PyMuPDF.
+- Process extracted content into searchable chunks.
+- Track document processing status.
+- View and delete uploaded documents.
 
-### 3. PDF Processing
+### Website Crawling and Indexing
+- Add a public website URL as a knowledge source.
+- Configure the maximum number of pages to crawl.
+- Validate URLs and restrict crawling to the starting host.
+- Check `robots.txt` before crawling pages.
+- Extract page titles and readable text using BeautifulSoup.
+- Store crawled pages and their chunks.
+- View website sources and crawled pages.
+- Delete website sources.
 
-- Extract text from PDF files using PyMuPDF.
-- Process document content page by page.
-- Split extracted content into smaller text chunks.
-- Maintain page numbers and chunk references.
-- Store extracted chunks in MySQL.
+**Crawler scope:** The current crawler is designed for public, same-host HTML pages. It does not execute JavaScript or crawl an entire website without limits.
 
-### 4. Semantic Search
+### Text Chunking and Embeddings
+- Split extracted PDF and website content into smaller chunks.
+- Use overlapping chunks to preserve context.
+- Generate 384-dimensional embeddings with `sentence-transformers/all-MiniLM-L6-v2`.
+- Store chunk content and embeddings in MySQL.
 
-- Generate text embeddings using Sentence Transformers.
-- Use the `all-MiniLM-L6-v2` embedding model.
-- Generate 384-dimensional vector representations.
-- Perform similarity searches using FAISS.
-- Retrieve the most relevant document chunks.
-- Restrict search results to the authenticated user's documents.
+### Unified Semantic Search
+- Search across the user's PDF documents and crawled website pages.
+- Convert the search query into an embedding.
+- Use FAISS CPU for similarity search.
+- Retrieve relevant chunks from the authenticated user's knowledge sources.
+- Return source metadata for PDFs and website pages.
 
-### 5. AI Question Answering
-
+### Retrieval-Augmented Generation (RAG)
 - Ask questions in natural language.
-- Retrieve relevant document content using semantic search.
-- Pass retrieved context to the LLM.
-- Generate context-aware answers.
-- Display relevant source documents and page references.
-- Instruct the model not to invent answers when the provided context is insufficient.
+- Retrieve relevant PDF and website content.
+- Build context from the retrieved chunks.
+- Send the question and context to the local Ollama model.
+- Generate an answer grounded in retrieved content.
+- Return source references with the answer.
 
-### 6. AI Chat and Conversation Management
-
-- Create new conversations.
-- Maintain multiple chat sessions.
-- Continue previous conversations.
+### AI Chat and Conversation Management
+- Create multiple conversations.
+- Ask questions within a conversation.
 - Store user and assistant messages.
-- Display conversation history.
+- Reopen previous conversations.
+- View conversation history.
 - Delete conversations.
-- Display document sources associated with AI responses.
+- Display source citations for AI answers.
 
-### 7. Modern User Interface
-
-- React.js frontend.
-- Material UI component library.
-- Responsive dashboard layout.
-- Sidebar navigation.
-- Document management interface.
-- Semantic search interface.
+### Modern React Interface
+- Dashboard overview.
+- Document management page.
+- Website sources page.
+- Semantic search page.
 - AI chat interface.
-- Loading and error states.
+- Responsive navigation and layout.
+- Loading, success and error states.
 
 ---
 
@@ -101,162 +104,138 @@ The application uses locally hosted AI models, reducing dependency on paid exter
 |---|---|
 | Frontend | React.js |
 | Build Tool | Vite |
-| UI Framework | Material UI (MUI) |
+| UI Library | Material UI (MUI) |
 | Routing | React Router DOM |
 | HTTP Client | Axios |
-| Backend | Python |
+| Backend Language | Python |
 | Backend Framework | Django |
 | API Framework | Django REST Framework |
-| Authentication | Simple JWT |
+| Authentication | Django REST Framework Simple JWT |
 | Database | MySQL |
-| PDF Processing | PyMuPDF |
+| PDF Extraction | PyMuPDF |
+| Website Parsing | BeautifulSoup |
+| HTTP Requests | Requests |
 | Text Embeddings | Sentence Transformers |
-| Embedding Model | all-MiniLM-L6-v2 |
-| Vector Search | FAISS (CPU) |
-| LLM Runtime | Ollama |
-| LLM Model | qwen2.5:0.5b |
-| Programming Languages | Python, JavaScript |
+| Embedding Model | `all-MiniLM-L6-v2` |
+| Vector Search | FAISS CPU |
+| Local LLM Runtime | Ollama |
+| LLM Model | `qwen2.5:0.5b` |
 | Version Control | Git and GitHub |
 
 ---
 
 ## System Architecture
 
-```text
-                   USER
-                     |
-                     v
-          REACT.JS FRONTEND
-             (Vite + MUI)
-                     |
-                     v
-              DJANGO REST API
-                     |
-          +----------+-----------+
-          |          |           |
-          v          v           v
-     Authentication  Documents  Conversations
-          |          |           |
-          |          v           |
-          |     PDF Extraction   |
-          |       (PyMuPDF)      |
-          |          |           |
-          |          v           |
-          |     Text Chunking    |
-          |          |           |
-          |          v           |
-          |    Embedding Model   |
-          |          |           |
-          |          v           |
-          |      FAISS Search    |
-          |          |           |
-          +----------+-----------+
-                     |
-                     v
-                  MySQL
-             (Application Data,
-              Chunks, Embeddings,
-              Chat History)
-                     |
-                     v
-              RETRIEVAL (RAG)
-                     |
-                     v
-                OLLAMA LLM
-               qwen2.5:0.5b
-                     |
-                     v
-              AI-GENERATED
-                 ANSWER
-                     |
-                     v
-             REACT.JS FRONTEND
+The application has two knowledge-ingestion paths: PDF documents and public website pages. Both paths produce text chunks and embeddings that can be searched through the unified retrieval pipeline.
+
+```mermaid
+flowchart TB
+    U[User] --> FE[React Frontend<br/>Vite + Material UI]
+    FE --> API[Django REST Framework API]
+
+    API --> AUTH[JWT Authentication]
+    API --> PDF[PDF Document Pipeline]
+    API --> WEB[Website Crawling Pipeline]
+    API --> CHAT[Conversation Management]
+
+    PDF --> EXTRACT[PyMuPDF Text Extraction]
+    EXTRACT --> PCHUNK[Text Chunking]
+    WEB --> VALIDATE[URL Validation and robots.txt]
+    VALIDATE --> CRAWL[Same-host Web Crawler]
+    CRAWL --> PARSE[BeautifulSoup Content Extraction]
+    PARSE --> WCHUNK[Text Chunking]
+
+    PCHUNK --> EMBED[Sentence Transformers<br/>all-MiniLM-L6-v2]
+    WCHUNK --> EMBED
+    EMBED --> MYSQL[(MySQL<br/>Metadata, Chunks, Embeddings)]
+
+    MYSQL --> SEARCH[Unified Knowledge Search]
+    SEARCH --> FAISS[FAISS Similarity Search]
+    FAISS --> CONTEXT[Retrieved Context and Sources]
+    CONTEXT --> RAG[RAG Pipeline]
+    RAG --> OLLAMA[Ollama<br/>qwen2.5:0.5b]
+    OLLAMA --> ANSWER[Generated Answer and Citations]
+    ANSWER --> FE
+    CHAT <--> MYSQL
 ```
 
-## How RAG Works in KnowHub AI
+### Main Components
 
-KnowHub AI implements a Retrieval-Augmented Generation pipeline.
-
-### Step 1: Document Upload
-
-The user uploads a PDF through the React frontend.
-
-The Django REST API validates the file and stores the document.
-
-### Step 2: Text Extraction
-
-PyMuPDF extracts text from the uploaded PDF, preserving page-level information.
-
-### Step 3: Text Chunking
-
-The extracted content is divided into smaller chunks.
-
-Current chunking configuration:
-
-- Chunk size: 1,000 characters approximately, split at word boundaries.
-- Chunk overlap: 200 characters.
-- Page-level chunk tracking.
-
-Overlap helps preserve context between adjacent chunks.
-
-### Step 4: Embedding Generation
-
-Sentence Transformers converts each text chunk into a numerical vector.
-
-Embedding model:
-
-`sentence-transformers/all-MiniLM-L6-v2`
-
-Each embedding contains 384 dimensions.
-
-The generated embeddings are stored in MySQL.
-
-### Step 5: Semantic Search
-
-When a user submits a question:
-
-1. The question is converted into an embedding.
-2. The application retrieves the authenticated user's document chunks.
-3. FAISS performs similarity search using an inner-product index.
-4. The most relevant chunks are selected.
-
-The embeddings are normalized, allowing inner-product similarity to represent cosine similarity.
-
-### Step 6: Context Retrieval
-
-The selected document chunks are combined into a context containing document and page references.
-
-### Step 7: LLM Answer Generation
-
-The retrieved context and user question are sent to the locally running Ollama model.
-
-Model: `qwen2.5:0.5b`
-
-The LLM generates an answer based on the retrieved context.
-
-### Step 8: Source References
-
-The response includes relevant source information, including document names and page references, so users can identify where the answer originated.
+| Component | Responsibility |
+|---|---|
+| React frontend | User interface for documents, websites, search and chat |
+| Django REST API | Authentication, application APIs and orchestration |
+| PDF pipeline | Extracts and processes uploaded PDF content |
+| Website crawler | Validates URLs and extracts same-host public web pages |
+| Sentence Transformers | Converts text chunks and questions into vectors |
+| MySQL | Stores application data, sources, chunks, embeddings and conversations |
+| FAISS | Finds semantically similar vectors |
+| RAG service | Combines retrieved context with the user's question |
+| Ollama | Runs the local LLM and generates an answer |
 
 ---
 
-## Project Folder Structure
+## How the RAG Pipeline Works
+
+### A. PDF Ingestion
+
+1. The user uploads a PDF from the React application.
+2. Django validates the file and stores its metadata and file.
+3. PyMuPDF extracts text while retaining page information.
+4. The text is split into smaller overlapping chunks.
+5. Sentence Transformers generates an embedding for each chunk.
+6. Chunk content, page information and embeddings are stored in MySQL.
+
+### B. Website Ingestion
+
+1. The user submits a public website URL and a page limit.
+2. The backend validates the URL and checks crawling permission through `robots.txt`.
+3. The crawler visits eligible same-host pages within its configured limits.
+4. BeautifulSoup extracts page titles and readable text.
+5. Page content is split into chunks.
+6. Sentence Transformers generates embeddings.
+7. Website source records, pages, chunks and embeddings are stored in MySQL.
+
+### C. Question Answering
+
+1. The user enters a question in Search or Chat.
+2. The application generates an embedding for the question.
+3. The unified search service retrieves the authenticated user's PDF and website chunks.
+4. FAISS ranks the vectors by similarity.
+5. The RAG service builds context with source metadata.
+6. The question and retrieved context are sent to Ollama.
+7. Ollama generates an answer using the supplied context.
+8. The frontend displays the answer with relevant PDF or website citations.
+
+### Embedding and Search Details
+
+- Embedding model: `sentence-transformers/all-MiniLM-L6-v2`
+- Embedding dimensions: 384
+- Vector index: FAISS `IndexFlatIP`
+- Embeddings are normalized before inner-product similarity search.
+- MySQL is the persistent source of truth for stored records and embeddings.
+- The current implementation builds the FAISS index from stored embeddings during a search rather than maintaining a persistent FAISS index.
+
+---
+
+## Project Structure
+
+The following is a representative structure. Some filenames may differ depending on the current local implementation.
 
 ```text
 knowhub-ai/
 │
 ├── backend/
-│   │
 │   ├── config/
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   └── __init__.py
 │   │
 │   ├── accounts/
+│   │   ├── models.py
 │   │   ├── serializers.py
 │   │   ├── views.py
-│   │   ├── urls.py
-│   │   └── models.py
+│   │   └── urls.py
 │   │
 │   ├── documents/
 │   │   ├── services/
@@ -266,11 +245,14 @@ knowhub-ai/
 │   │   │   ├── document_processor.py
 │   │   │   ├── vector_search.py
 │   │   │   ├── llm_service.py
-│   │   │   └── rag_service.py
-│   │   │
+│   │   │   ├── rag_service.py
+│   │   │   ├── web_crawler.py
+│   │   │   └── web_embedding_service.py
 │   │   ├── models.py
 │   │   ├── serializers.py
+│   │   ├── web_serializers.py
 │   │   ├── views.py
+│   │   ├── web_views.py
 │   │   └── urls.py
 │   │
 │   ├── conversations/
@@ -279,99 +261,63 @@ knowhub-ai/
 │   │   ├── views.py
 │   │   └── urls.py
 │   │
-│   ├── media/
 │   ├── manage.py
 │   ├── requirements.txt
-│   └── .env
+│   ├── .env.example
+│   └── media/                 # Local uploads; do not commit
 │
 ├── frontend/
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Documents.jsx
+│   │   │   ├── Search.jsx
+│   │   │   ├── Chat.jsx
+│   │   │   └── WebSources.jsx
 │   │   ├── services/
 │   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── theme.js
-│   │
+│   │   └── main.jsx
 │   ├── package.json
 │   └── vite.config.js
 │
+├── docs/
+│   ├── architecture.png
+│   └── demo.mp4                 # Optional project demo
+│
+├── .gitignore
 └── README.md
 ```
 
-*Folder structure is representative; adjust it if your local project contains additional files.*
-
 ---
 
-## Installation and Setup
+## Installation and Local Setup
 
 ### Prerequisites
 
-Install the following software before running the project:
+Install the following:
 
-- Python 3.11 or later, with compatible dependencies.
+- Python compatible with the project's installed dependencies.
 - Node.js and npm.
 - MySQL Server.
 - Ollama.
 - Git.
 
+The application is intended to run locally. Docker is not required for this setup.
+
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/knowhub-ai.git
-
+git clone https://github.com/MegharajPN/Knowhub-ai.git
 cd knowhub-ai
 ```
 
-### 2. Backend Setup
+Replace `YOUR_USERNAME` with your GitHub username.
 
-Navigate to the backend directory:
+### 2. Create the MySQL Database
 
-```bash
-cd backend
-```
-
-Create a Python virtual environment:
-
-```bash
-python -m venv .venv
-```
-
-Activate the environment on Windows:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-Install Python dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure Environment Variables
-
-Create a `.env` file inside the backend directory.
-
-Example:
-
-```env
-SECRET_KEY=your-django-secret-key
-DEBUG=True
-
-DB_NAME=knowhub_ai
-DB_USER=root
-DB_PASSWORD=your-mysql-password
-DB_HOST=127.0.0.1
-DB_PORT=3306
-```
-
-Never commit your actual `.env` file or database credentials to GitHub.
-
-### 4. Create MySQL Database
-
-Open MySQL Workbench or the MySQL command line and execute:
+Run the following in MySQL:
 
 ```sql
 CREATE DATABASE knowhub_ai
@@ -379,184 +325,180 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 5. Run Database Migrations
+### 3. Configure the Backend
 
-From the backend directory:
+Open a terminal in the project root:
 
-```bash
-python manage.py makemigrations
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
+Create a `.env` file inside `backend/`:
+
+```env
+SECRET_KEY=replace-with-a-local-django-secret
+DEBUG=True
+
+DB_NAME=knowhub_ai
+DB_USER=root
+DB_PASSWORD=your-local-mysql-password
+DB_HOST=127.0.0.1
+DB_PORT=3306
+```
+
+Use your own local MySQL credentials. Do not commit `.env` to GitHub.
+
+Apply migrations:
+
+```powershell
 python manage.py migrate
 ```
 
-Start the Django development server:
+Start Django:
 
-```bash
+```powershell
 python manage.py runserver
 ```
 
-Backend URL:
+Backend development server: `http://127.0.0.1:8000/`
 
-`http://127.0.0.1:8000/`
+### 4. Start Ollama
 
-### 6. Install and Configure Ollama
+Install and start Ollama, then pull the model:
 
-Download and install Ollama:
-
-https://ollama.com/
-
-Pull the required model:
-
-```bash
+```powershell
 ollama pull qwen2.5:0.5b
 ```
 
-Start Ollama:
+Make sure the Ollama service is running and the model is available locally.
 
-```bash
-ollama serve
-```
+The application uses the local Ollama API, normally available at:
 
-Ollama API:
+`http://localhost:11434/`
 
-`http://127.0.0.1:11434/`
+### 5. Configure the Frontend
 
-Ensure the model is available:
+Open a second terminal:
 
-```bash
-ollama list
-```
-
-### 7. Frontend Setup
-
-Open another terminal and navigate to the frontend directory:
-
-```bash
+```powershell
 cd frontend
-```
-
-Install dependencies:
-
-```bash
 npm install
-```
-
-Start the React development server:
-
-```bash
 npm run dev
 ```
 
-Frontend URL:
+Frontend development server: `http://localhost:5173/`
 
-`http://localhost:5173/`
+Open the frontend URL in your browser, register an account and start adding knowledge sources.
 
 ---
 
 ## API Endpoints
 
-The application exposes REST APIs through Django REST Framework.
+The following endpoints are exposed by the Django REST API.
 
-### Authentication APIs
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register/` | Register a new user |
-| POST | `/api/auth/login/` | Authenticate user and obtain JWT tokens |
-| POST | `/api/auth/token/refresh/` | Refresh access token |
-| GET | `/api/auth/me/` | Retrieve authenticated user information |
-
-### Document APIs
+### Authentication
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/documents/` | List user's documents |
-| POST | `/api/documents/` | Upload a PDF document |
+| POST | `/api/auth/register/` | Register a user |
+| POST | `/api/auth/login/` | Login and obtain JWT tokens |
+| POST | `/api/auth/token/refresh/` | Refresh an access token |
+| GET | `/api/auth/me/` | Get authenticated user information |
+
+### Documents and Knowledge Search
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/documents/` | List the user's documents |
+| POST | `/api/documents/` | Upload a PDF |
 | DELETE | `/api/documents/{id}/` | Delete a document |
-| POST | `/api/documents/search/` | Perform semantic document search |
+| POST | `/api/documents/search/` | Search indexed knowledge |
 | POST | `/api/documents/ask/` | Ask a question using RAG |
 
-### Conversation APIs
+### Website Sources
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/documents/web-sources/` | List website sources |
+| POST | `/api/documents/web-sources/` | Create and crawl a website source |
+| GET | `/api/documents/web-sources/{id}/` | Get a source and its crawled pages |
+| DELETE | `/api/documents/web-sources/{id}/` | Delete a website source |
+
+### Conversations
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/conversations/` | List conversations |
 | POST | `/api/conversations/` | Create a conversation |
-| GET | `/api/conversations/{id}/` | Retrieve conversation and messages |
+| GET | `/api/conversations/{id}/` | Get a conversation and its messages |
 | DELETE | `/api/conversations/{id}/` | Delete a conversation |
-| POST | `/api/conversations/{id}/ask/` | Submit a question in a conversation |
+| POST | `/api/conversations/{id}/ask/` | Ask a question in a conversation |
 
-Protected endpoints require JWT authentication.
+Protected endpoints require JWT authentication. Exact request and response fields are defined by the serializers and views in the backend.
 
 ---
 
 ## Database Design
 
-The application uses MySQL as its primary relational database.
+MySQL stores application records and the source content used by the retrieval pipeline.
 
 ### Main Models
 
 **User**
 
-Uses Django's built-in authentication user model.
+Uses Django's authentication user model.
 
 **Document**
 
-Stores document metadata:
-
-- Uploaded user.
-- Document title.
-- File path.
-- File size.
-- Processing status.
-- Creation timestamp.
+Stores uploaded PDF metadata, including owner, title, file path, file size, processing status and timestamps.
 
 **DocumentChunk**
 
-Stores extracted document content:
+Stores extracted PDF content, chunk number, page number, embedding and creation timestamp.
 
-- Related document.
-- Chunk number.
-- Page number.
-- Extracted text.
-- Vector embedding.
-- Creation timestamp.
+**WebSource**
+
+Stores the website source submitted by a user, crawl configuration, status, page count, error information and crawl timestamps.
+
+**WebPage**
+
+Stores crawled page information, including its source, URL, title and extracted content.
+
+**WebPageChunk**
+
+Stores chunked website content and its embedding.
 
 **Conversation**
 
-Stores chat session information:
-
-- User.
-- Conversation title.
-- Created timestamp.
-- Updated timestamp.
+Stores a user's chat session, title and timestamps.
 
 **Message**
 
-Stores individual conversation messages:
-
-- Related conversation.
-- Message role (user or assistant).
-- Message content.
-- Source references.
-- Creation timestamp.
+Stores each user or assistant message, its conversation, content, source references and creation timestamp.
 
 ---
 
-## Security and Data Handling
+## Security and Responsible Crawling
 
-KnowHub AI includes the following application-level security measures:
+The project includes application-level security measures such as:
 
 - JWT authentication for protected APIs.
-- User-scoped document queries.
-- User-scoped conversation queries.
-- PDF extension and file-signature validation.
-- Maximum upload size validation.
-- Environment variables for database credentials and application secrets.
-- Context instructions that treat retrieved document text as untrusted input.
-- LLM instructions to answer using retrieved context rather than inventing information.
+- User-scoped document, website-source and conversation access.
+- PDF extension, file-signature and upload-size validation.
+- Environment variables for secrets and database configuration.
+- HTTP/HTTPS URL validation for website sources.
+- Rejection of localhost and non-public IP destinations by the crawler's URL validation.
+- Same-host crawling and redirect validation.
+- `robots.txt` checks before crawling.
+- Limits on crawl page count, depth, response size and request time.
+- Retrieved document and website content treated as untrusted context for the LLM.
 
-**Important:** This is a portfolio and development project. Before production deployment, additional hardening is required, including secure token storage, HTTPS, rate limiting, malware scanning, production-grade file storage, logging, monitoring, and robust authorization testing.
+**Production security note:** Application-level URL and DNS checks alone are not a complete defense against SSRF or DNS rebinding. A production deployment should also enforce outbound network restrictions and add security testing, monitoring and rate limiting. Respect website terms and crawling policies.
+
+This is a development and portfolio project, not a production-hardened service. Production use would also require HTTPS, secure token storage, malware scanning, production file storage, logging, monitoring, robust authorization tests and operational controls.
 
 ---
 
@@ -564,36 +506,36 @@ KnowHub AI includes the following application-level security measures:
 
 ### Why MySQL?
 
-MySQL stores application records, uploaded document metadata, extracted chunks, embeddings, and persistent conversation history.
+MySQL provides relational storage for users, source metadata, document and website chunks, embeddings and conversation history. It remains the source of truth for the current implementation.
 
 ### Why Sentence Transformers?
 
-The `all-MiniLM-L6-v2` model provides compact semantic embeddings suitable for lightweight local semantic-search applications.
+`all-MiniLM-L6-v2` creates compact 384-dimensional semantic embeddings suitable for local semantic search.
 
 ### Why FAISS?
 
-FAISS provides efficient similarity search over vector representations without requiring a separate managed vector database.
-
-The current implementation builds a FAISS index from the relevant stored embeddings during search. MySQL remains the source of truth.
+FAISS provides vector similarity search without requiring a separately managed vector database. The current application builds an index from stored embeddings during searches.
 
 ### Why Ollama?
 
-Ollama makes it possible to run a language model locally without depending on paid external LLM APIs.
+Ollama allows the application to run an LLM locally and avoid dependence on a paid external LLM API for the current workflow.
 
 ### Why RAG?
 
-RAG retrieves relevant document information before generating an answer. This helps ground responses in the user's uploaded knowledge rather than relying only on the LLM's general training data.
+RAG retrieves relevant source content before asking the LLM to generate an answer. This helps ground answers in the user's indexed knowledge rather than relying only on the model's general training.
 
 ---
 
 ## Current Limitations
 
-- PDF documents are supported; other document formats are not currently implemented.
-- Document processing is synchronous.
-- FAISS indexes are built during searches rather than maintained as a persistent vector index.
-- The local LLM model is small and may produce less detailed answers than larger models.
-- Performance depends on available system memory and CPU resources.
-- The project is designed as a local development and portfolio application, not yet a production deployment.
+- PDF is the currently supported uploaded document format.
+- Website crawling is limited to public, same-host pages and configured crawl limits.
+- JavaScript-rendered website content is not rendered by the crawler.
+- Document and website processing are synchronous.
+- FAISS indexes are rebuilt from stored embeddings during searches.
+- The local `qwen2.5:0.5b` model is small and may produce less detailed answers than larger models.
+- Performance depends on available CPU and memory.
+- The application is designed for local development and portfolio demonstration, not yet production deployment.
 
 ---
 
@@ -601,50 +543,129 @@ RAG retrieves relevant document information before generating an answer. This he
 
 Potential improvements include:
 
-- Support for DOCX, TXT, and additional document formats.
-- Background document processing using Celery and Redis.
+- DOCX and TXT document support.
+- Background processing with Celery and Redis.
 - Persistent FAISS indexes or a dedicated vector database.
 - Streaming LLM responses.
 - Conversation-aware retrieval and contextual follow-up questions.
+- JavaScript-rendered website crawling where appropriate.
 - Improved document preview and citation navigation.
 - Role-based access control.
 - Admin dashboard and usage analytics.
-- Cloud deployment.
-- Automated testing and CI/CD.
-- Improved prompt-injection defenses and document-level authorization tests.
+- Automated tests, CI/CD and deployment automation.
+- Production observability and security hardening.
 
 ---
 
 ## What This Project Demonstrates
 
-KnowHub AI demonstrates practical implementation of:
+KnowHub AI demonstrates practical work across:
 
-- Full-stack application development.
-- REST API development using Django REST Framework.
-- React.js frontend development.
-- JWT-based authentication.
-- Relational database design using MySQL.
-- PDF processing and text extraction.
+- Full-stack application development with React and Django REST Framework.
+- REST API design and JWT authentication.
+- MySQL relational data modelling.
+- PDF extraction and website content ingestion.
+- Web crawling, URL validation and `robots.txt` handling.
 - Text chunking and embedding generation.
-- Semantic search using FAISS.
+- Semantic vector search with FAISS.
 - Retrieval-Augmented Generation (RAG).
-- Local LLM integration using Ollama.
-- AI-powered question answering.
+- Local LLM integration with Ollama.
+- Source-aware AI question answering.
 - Persistent chat and conversation management.
-- Integration between frontend, backend, database, and AI services.
+- Integration of frontend, backend, database and local AI components.
+
+---
+
+## Running the Application Locally
+
+Start the required services in separate terminals:
+
+1. MySQL Server.
+2. Ollama with the `qwen2.5:0.5b` model available.
+3. Django backend from `backend/`.
+4. React frontend from `frontend/`.
+
+Then open `http://localhost:5173/`, register or log in, upload a PDF or add a website source, and use Search or Chat to ask questions.
+
+---
+
+## Git Setup
+
+Before committing, check that local secrets, uploaded files, virtual environments, dependencies and generated model files are excluded.
+
+A starter `.gitignore` for this project can include:
+
+```gitignore
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+
+# Django local data
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+
+# Frontend dependencies and builds
+node_modules/
+dist/
+.vite/
+
+# Local model and generated files
+*.faiss
+*.index
+.cache/
+.cache_huggingface/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+```
+
+Review this list against your actual project before committing. Keep `requirements.txt`, frontend lock files and documentation in Git. Do not commit database passwords, secret keys, private uploads or large downloaded model weights.
+
+Initialize and commit the project:
+
+```bash
+git init
+git status
+git add .
+git status
+git commit -m "Initial commit: KnowHub AI knowledge assistant"
+```
+
+Add your GitHub repository as the remote and push:
+
+```bash
+git branch -M main
+git remote add origin https://github.com/MegharajPN/Knowhub-ai.git
+git push -u origin main
+```
+
+Replace the repository URL with your actual GitHub repository. Review `git status` and the staged files before committing.
 
 ---
 
 ## Author
 
-**Developed as a Full-Stack AI Portfolio Project**
+**KnowHub AI — Full-Stack AI Portfolio Project**
 
-**Technologies:** Python | Django REST Framework | React.js | MySQL | FAISS | Sentence Transformers | Ollama | RAG
+**Technology:** Python | Django REST Framework | React.js | MySQL | Sentence Transformers | FAISS | Ollama | RAG
 
-GitHub: `https://github.com/YOUR_USERNAME`
+GitHub: `https://github.com/MegharajPN`
 
 ---
 
 ## License
 
-This project is available for educational and portfolio purposes. Add a license file if you intend to distribute or reuse the project under specific licensing terms.
+This repository is intended as an educational and portfolio project. No open-source license is granted unless a separate license file is added to the repository.
