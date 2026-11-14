@@ -18,7 +18,7 @@
 
 <p align="center">
        <video width="100%" controls>
-              <source src="KnowHUb Demo AI Video.mp4" type="video/mp4">
+              <source src="https://github.com/MegharajPN/Knowhub-ai/blob/b43dfe34896fa0501531e4ddc3255a80c4856097/KnowHUb%20Demo%20AI%20Video.mp4" type="video/mp4">
               Your browser does not support the video tag.
        </video>
 </p>
