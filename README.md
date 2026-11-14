@@ -17,7 +17,10 @@
 <!-- Add your Gemini-generated demo video to docs/demo.mp4, or replace the link below with your YouTube URL. -->
 
 <p align="center">
-  <a href="KnowHUb Demo AI Video.mp4">Watch the KnowHub AI demo video</a>
+       <video width="100%" controls>
+              <source src="KnowHUb Demo AI Video.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+       </video>
 </p>
 
 ## Overview
